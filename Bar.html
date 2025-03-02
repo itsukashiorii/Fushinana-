@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fushinana</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #f4f4f4;
+            overflow-x: hidden;
+            cursor: url('custom-cursor.png'), auto;
+            scroll-behavior: smooth;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            animation: fadeIn 2s ease;
+            overflow-y: scroll;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #000, #222);
+        }
+
+        /* Background Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(51, 51, 51, 0.8);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff6f61;
+            border-radius: 10px;
+            border: 3px solid rgba(51, 51, 51, 0.8);
+            animation: scrollThumbGlow 2s infinite;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff3b2f;
+        }
+
+        @keyframes scrollThumbGlow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 111, 97, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 111, 97, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(255, 111, 97, 0.8);
+            }
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(51, 51, 51, 0.8);
+            padding: 10px 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #ff6f61;
+        }
+
+        .navbar .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff6f61;
+        }
+
+       /* Model Controls Dropdown */
+        .model-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .model-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: rgba(51, 51, 51, 0.8);
+            min-width: 10px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+        }
+
+        .model-dropdown-content button {
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .model-dropdown-content button:hover {
+            background-color: rgba(255, 111, 97, 0.8);
+        }
+
+        .model-dropdown:hover .model-dropdown-content {
+            display: block;
+        }
+        
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger-menu div {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 4px 0;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1001;
+            top: 0;
+            right: 0;
+            background-color: rgba(51, 51, 51, 0.95);
+            overflow-y: auto;
+            transition: width 0.5s ease;
+            padding-top: 60px;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar a {
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease, border-left 0.3s ease, color 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 111, 97, 0.1);
+            border-left: 4px solid #ff6f61;
+            color: #ff6f61;
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 30px;
+            color: #ff6f61;
+            cursor: pointer;
+        }
+
+        .sidebar .close-btn:hover {
+            color: #ff3b2f;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('0.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            animation: fadeIn 2s ease, gradientShift 10s infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header h1 {
+            font-size: 48px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            animation: slideInDown 1s ease;
+        }
+
+        @keyframes slideInDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Gallery */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            padding: 20px;
+            transition: grid-template-columns 0.5s ease;
+        }
+
+        .gallery-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+            user-select: none;
+            pointer-events: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gallery-container img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 111, 97, 0.8);
+            filter: brightness(1.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 8px;
+            user-select: none;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #333, #1a1a1a);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease, gradientShift 10s infinite alternate;
+        }
+
+        .footer a {
+            color: #ff6f61;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #ff3b2f;
+            text-decoration: underline;
+        }
+
+        /* Video Player */
+        .video-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .video-player {
+            width: 80%;
+            max-width: 800px;
+            background-color: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .video-player:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .video-player video {
+            width: 100%;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-player:hover .video-controls {
+            opacity: 1;
+        }
+
+        .video-controls button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+            transition: color 0.3s ease;
+        }
+
+        .video-controls button:hover {
+            color: #ff6f61;
+        }
+
+        .video-controls .progress-bar {
+            flex-grow: 1;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin: 0 10px;
+            position: relative;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .video-controls .progress-bar .progress {
+            height: 100%;
+            background-color: #ff6f61;
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.1s ease;
+        }
+
+        .video-controls .time {
+            color: white;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        /* Overlay Gambar PNG */
+        .overlay {
+            display: none;
+            position: fixed;
+            z-index: 1002;
+            width: 300px;
+            height: 300px;
+            background-color: transparent;
+            border-radius: 15px;
+            transition: all 0.5s ease;
+            animation: fadeInOverlay 0.5s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+            opacity: 0.9;
+        }
+
+        /* Animasi Loading */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 36px;
+            }
+
+            .gallery-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hamburger-menu {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+        }
+
+        /* Model Viewer */
+        model-viewer {
+            position: fixed;
+            bottom: 20px;
+            left: 50px;
+            width: 300px;
+            height: 300px;
+            z-index: 999;
+            transition: all 0.5s ease;
+            border-radius: 15px;
+            background-color: transparent; /* Menghilangkan background container */
+            border: none; /* Menghilangkan border */
+        }
+
+        model-viewer.fullscreen {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 0;
+        }
+
+        .close-model-btn {
+            position: fixed;
+            top: 18px;
+            right: 55px;
+            background-color: rgba(51, 51, 51, 0.8);
+            border: none;
+            color: white;
+            padding: 1px;
+            border-radius: 1px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-model-btn:hover {
+            background-color: rgba(255, 111, 97, 0.8);
+        }
+    </style>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">Fushinana 神社</div>
+             <div class="model-dropdown">
+                <button class="model-dropbtn"><i class="fas fa-cube"></i> Pilih Model</button>
+                <div class="model-dropdown-content">
+                    <button onclick="showModel('4la.glb')">Model 1</button>
+                    <button onclick="showModel('yu.glb')">Model 2</button>
+                    <button onclick="showModel('5la.glb')">Model 3</button>
+                </div>
+            </div>
+        <div class="hamburger-menu" onclick="openSidebar()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeSidebar()">&times;</a>
+        <a href="#" onclick="changeImageSize(2)"><i class="fas fa-th"></i> 2x2 Grid</a>
+        <a href="#" onclick="changeImageSize(3)"><i class="fas fa-th"></i> 3x3 Grid</a>
+        <a href="#" onclick="changeImageSize(4)"><i class="fas fa-th"></i> 4x4 Grid</a>
+        <a href="#" onclick="changeImageSize(5)"><i class="fas fa-th"></i> 5x5 Grid</a>
+        <a href="#" onclick="changeImageSize(6)"><i class="fas fa-th"></i> 6x6 Grid</a>
+        <a href="#" onclick="changeImageSize(7)"><i class="fas fa-th"></i> 7x7 Grid</a>
+        <a href="#" onclick="changeImageSize(8)"><i class="fas fa-th"></i> 8x8 Grid</a>
+        <a href="#" onclick="toggleAudio('audio1')"><i class="fas fa-music"></i> Play Audio 1</a>
+        <a href="#" onclick="toggleAudio('audio2')"><i class="fas fa-music"></i> Play Audio 2</a>
+        <a href="#" onclick="toggleAudio('audio3')"><i class="fas fa-music"></i> Play Audio 3</a>
+        <a href="#" onclick="setVolume(0.2)"><i class="fas fa-volume-down"></i> Volume 20%</a>
+        <a href="#" onclick="setVolume(0.5)"><i class="fas fa-volume-up"></i> Volume 50%</a>
+        <a href="#" onclick="setVolume(1)"><i class="fas fa-volume-up"></i> Volume 100%</a>
+        <a href="#" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> Toggle Dark Mode</a>
+        <a href="#" onclick="startSlideshow()"><i class="fas fa-play"></i> Start Slideshow</a>
+        <a href="#" onclick="stopSlideshow()"><i class="fas fa-stop"></i> Stop Slideshow</a>
+        <a href="#" onclick="setSlideshowSpeed(1000)"><i class="fas fa-tachometer-alt"></i> Slideshow Speed: 1s</a>
+        <a href="#" onclick="setSlideshowSpeed(3000)"><i class="fas fa-tachometer-alt"></i> Slideshow Speed: 3s</a>
+        <a href="#" onclick="setSlideshowSpeed(5000)"><i class="fas fa-tachometer-alt"></i> Slideshow Speed: 5s</a>
+        <a href="#" onclick="setBrightness(1.2)"><i class="fas fa-sun"></i> Increase Brightness</a>
+        <a href="#" onclick="setBrightness(0.8)"><i class="fas fa-sun"></i> Decrease Brightness</a>
+        <a href="#" onclick="setContrast(1.2)"><i class="fas fa-adjust"></i> Increase Contrast</a>
+        <a href="#" onclick="setContrast(0.8)"><i class="fas fa-adjust"></i> Decrease Contrast</a>
+        <a href="#" onclick="setSaturation(1.2)"><i class="fas fa-paint-brush"></i> Increase Saturation</a>
+        <a href="#" onclick="setSaturation(0.8)"><i class="fas fa-paint-brush"></i> Decrease Saturation</a>
+        <a href="#" onclick="rotateImages(90)"><i class="fas fa-undo"></i> Rotate 90°</a>
+        <a href="#" onclick="rotateImages(-90)"><i class="fas fa-redo"></i> Rotate -90°</a>
+        <a href="#" onclick="applyFilter('grayscale(100%)')"><i class="fas fa-image"></i> Grayscale Filter</a>
+        <a href="#" onclick="applyFilter('sepia(100%)')"><i class="fas fa-image"></i> Sepia Filter</a>
+        <a href="#" onclick="applyFilter('none')"><i class="fas fa-image"></i> Reset Filter</a>
+        <a href="#" onclick="setBlur(5)"><i class="fas fa-eye-slash"></i> Apply Blur</a>
+        <a href="#" onclick="setBlur(0)"><i class="fas fa-eye"></i> Remove Blur</a>
+        <a href="#" onclick="setOpacity(0.5)"><i class="fas fa-low-vision"></i> Set Opacity 50%</a>
+        <a href="#" onclick="setOpacity(1)"><i class="fas fa-eye"></i> Set Opacity 100%</a>
+        <a href="#" onclick="setZoom(1.2)"><i class="fas fa-search-plus"></i> Zoom In</a>
+        <a href="#" onclick="setZoom(1)"><i class="fas fa-search-minus"></i> Zoom Out</a>
+        <a href="#" onclick="setBorder('2px solid red')"><i class="fas fa-border-all"></i> Add Red Border</a>
+        <a href="#" onclick="setBorder('none')"><i class="fas fa-border-none"></i> Remove Border</a>
+        <a href="#" onclick="setShadow('0 4px 15px rgba(0, 0, 0, 0.3)')"><i class="fas fa-box"></i> Add Shadow</a>
+        <a href="#" onclick="setShadow('none')"><i class="fas fa-box"></i> Remove Shadow</a>
+        <a href="#" onclick="setHoverAnimation('spin')"><i class="fas fa-sync"></i> Add Spin Animation</a>
+        <a href="#" onclick="setHoverAnimation('none')"><i class="fas fa-ban"></i> Remove Animation</a>
+        <a href="#" onclick="addTextOverlay()"><i class="fas fa-font"></i> Add Text Overlay</a>
+        <a href="#" onclick="removeTextOverlay()"><i class="fas fa-font"></i> Remove Text Overlay</a>
+        <a href="#" onclick="setTextColor('red')"><i class="fas fa-palette"></i> Set Text Color: Red</a>
+        <a href="#" onclick="setTextColor('white')"><i class="fas fa-palette"></i> Set Text Color: White</a>
+        <a href="#" onclick="setTextSize('20px')"><i class="fas fa-text-height"></i> Set Text Size: 20px</a>
+        <a href="#" onclick="setTextSize('30px')"><i class="fas fa-text-height"></i> Set Text Size: 30px</a>
+        <a href="#" onclick="showOverlay()"><i class="fas fa-image"></i> Show PNG Overlay</a>
+        <a href="#" onclick="toggleGlowEffect()"><i class="fas fa-magic"></i> Toggle Glow Effect</a>
+        <a href="#" onclick="describeImage()"><i class="fas fa-robot"></i> Describe Image (AI)</a>
+        <a href="#" onclick="pickRandomImage()"><i class="fas fa-random"></i> Pick Random Image</a>
+        <a href="#" onclick="shareImage()"><i class="fas fa-share"></i> Share Image</a>
+        <a href="#" onclick="rateImage(1)">⭐ Rate 1 Star</a>
+        <a href="#" onclick="rateImage(2)">⭐⭐ Rate 2 Stars</a>
+        <a href="#" onclick="rateImage(3)">⭐⭐⭐ Rate 3 Stars</a>
+        <a href="#" onclick="rateImage(4)">⭐⭐⭐⭐ Rate 4 Stars</a>
+        <a href="#" onclick="rateImage(5)">⭐⭐⭐⭐⭐ Rate 5 Stars</a>
+        <a href="#" onclick="addComment()"><i class="fas fa-comment"></i> Add Comment</a>
+        <a href="#" onclick="startSlideshowWithTransition()"><i class="fas fa-play"></i> Slideshow with Transition</a>
+        <a href="#" onclick="openModelViewer()"><i class="fas fa-cube"></i> Open 3D Model Viewer</a>
+    </div>
+
+    <!-- Model Viewer -->
+    <model-viewer id="modelViewer" src=".glb" camera-controls auto-rotate></model-viewer>
+    <button class="close-model-btn" onclick="closeModel()"><i class="fas fa-times"></i> Close</button>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Fushinana</h1>
+        <div id="countdown" style="font-size: 24px; margin-top: 10px;"></div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="gallery-container" id="galleryContainer">
+        <div id="loading">Loading...</div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="video-container">
+        <div class="video-player">
+            <video id="video" src="1.mp4"></video>
+            <div class="video-controls">
+                <button onclick="playPause()"><i class="fas fa-play"></i></button>
+                <button onclick="stopVideo()"><i class="fas fa-stop"></i></button>
+                <button onclick="muteUnmute()"><i class="fas fa-volume-up"></i></button>
+                <div class="progress-bar" onclick="seek(event)">
+                    <div class="progress"></div>
+                </div>
+                <span class="time" id="currentTime">00:00</span> / <span class="time" id="duration">00:00</span>
+                <button onclick="fullScreen()"><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <p id="imageDescription" style="color: white; text-align: center; margin-top: 10px;"></p>
+        <button onclick="downloadImage()" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">Unduh Gambar</button>
+        <button onclick="shareImage()" style="position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);">Bagikan Gambar</button>
+        <div style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);">
+            <button onclick="rateImage(1)">⭐</button>
+            <button onclick="rateImage(2)">⭐⭐</button>
+            <button onclick="rateImage(3)">⭐⭐⭐</button>
+            <button onclick="rateImage(4)">⭐⭐⭐⭐</button>
+            <button onclick="rateImage(5)">⭐⭐⭐⭐⭐</button>
+        </div>
+        <button onclick="addComment()" style="position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);">Tambah Komentar</button>
+    </div>
+
+    <!-- Overlay Gambar PNG -->
+    <div class="overlay" id="overlay">
+        <img src="misha1.png" alt="Overlay Image">
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2023 Date A Live Gallery. All rights reserved. | <a href="#">Privacy Policy</a></p>
+    </div>
+
+    <script>
+        const galleryContainer = document.getElementById('galleryContainer');
+        const modal = document.getElementById('myModal');
+        const modalImg = document.getElementById('modalImg');
+        const closeBtn = document.querySelector('.close');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const video = document.getElementById('video');
+        const imageDescription = document.getElementById('imageDescription');
+        const loading = document.getElementById('loading');
+        const modelViewer = document.getElementById('modelViewer');
+        const closeModelBtn = document.querySelector('.close-model-btn');
+
+        let currentAudio = null;
+        let slideshowInterval = null;
+        let slideshowSpeed = 3000; // Default slideshow speed
+        let isGlowEnabled = false;
+        const overlayImages = ['misha1.png', 'misha2.png', 'misha3.png']; // Daftar gambar overlay
+        let currentOverlayIndex = 0;
+
+        const audios = {
+            audio1: new Audio('1.mp3'), // Ganti dengan file audio Anda
+            audio2: new Audio('2.mp3'), // Ganti dengan file audio Anda
+            audio3: new Audio('3.mp3')  // Ganti dengan file audio Anda
+        };
+
+        // Fungsi untuk menampilkan model
+        function showModel(src) {
+            modelViewer.src = src;
+            modelViewer.style.display = 'block';
+            closeModelBtn.style.display = 'block';
+        }
+
+        // Fungsi untuk menutup model
+        function closeModel() {
+            modelViewer.style.display = 'none';
+            closeModelBtn.style.display = 'none';
+        }
+
+        // Fungsi untuk memperbesar model ke fullscreen
+        modelViewer.addEventListener('dblclick', () => {
+            modelViewer.classList.toggle('fullscreen');
+        });
+
+        // Fungsi untuk menghasilkan gambar
+        function generateImages() {
+            showLoading(); // Tampilkan animasi loading
+            for (let i = 0; i <= 283; i++) {
+                const fileFormat = i <= 25 ? 'jpg' : 'jpg';
+                const imgSrc = `${i}.${fileFormat}`;
+
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = `Gambar Anime ${i}`; // Tambahkan atribut alt untuk pencarian
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.onclick = () => openModal(imgSrc);
+
+                galleryContainer.appendChild(img);
+            }
+            hideLoading(); // Sembunyikan animasi loading setelah gambar selesai dimuat
+        }
+
+        // Fungsi untuk membuka modal
+        function openModal(src) {
+            modal.style.display = 'block';
+            modalImg.src = src;
+            describeImage(src); // Panggil fungsi AI untuk deskripsi gambar
+        }
+
+        // Fungsi untuk menutup modal
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Tutup modal saat mengklik di luar gambar
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Fungsi untuk mengubah ukuran gambar
+        function changeImageSize(size) {
+            if (size === 8) {
+                galleryContainer.style.gridTemplateColumns = 'repeat(8, 1fr)';
+                galleryContainer.style.gap = '5px'; // Jarak lebih kecil untuk 8x8
+            } else {
+                galleryContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+                galleryContainer.style.gap = '15px'; // Jarak default
+            }
+            closeSidebar();
+        }
+
+        // Fungsi untuk toggle audio
+        function toggleAudio(audioId) {
+            if (currentAudio && currentAudio !== audios[audioId]) {
+                currentAudio.pause();
+            }
+            if (audios[audioId].paused) {
+                audios[audioId].play();
+                currentAudio = audios[audioId];
+            } else {
+                audios[audioId].pause();
+                currentAudio = null;
+            }
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur volume audio
+        function setVolume(volume) {
+            if (currentAudio) {
+                currentAudio.volume = volume;
+            }
+            closeSidebar();
+        }
+
+        // Fungsi untuk memulai slideshow
+        function startSlideshow() {
+            let index = 0;
+            const images = document.querySelectorAll('.gallery-container img');
+            slideshowInterval = setInterval(() => {
+                openModal(images[index].src);
+                index = (index + 1) % images.length;
+            }, slideshowSpeed); // Ganti gambar sesuai kecepatan
+            closeSidebar();
+        }
+
+        // Fungsi untuk menghentikan slideshow
+        function stopSlideshow() {
+            clearInterval(slideshowInterval);
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur kecepatan slideshow
+        function setSlideshowSpeed(speed) {
+            slideshowSpeed = speed;
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur kecerahan gambar
+        function setBrightness(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.filter = `brightness(${value})`;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur kontras gambar
+        function setContrast(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.filter = `contrast(${value})`;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur saturasi gambar
+        function setSaturation(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.filter = `saturate(${value})`;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk memutar gambar
+        function rotateImages(degrees) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.transform = `rotate(${degrees}deg)`;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk menerapkan filter gambar
+        function applyFilter(filter) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.filter = filter;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur blur gambar
+        function setBlur(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.filter = `blur(${value}px)`;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur opacity gambar
+        function setOpacity(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.opacity = value;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur zoom gambar
+        function setZoom(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.transform = `scale(${value})`;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur border gambar
+        function setBorder(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.border = value;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur shadow gambar
+        function setShadow(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                img.style.boxShadow = value;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur animasi hover gambar
+        function setHoverAnimation(value) {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                if (value === 'spin') {
+                    img.style.transition = 'transform 0.5s ease';
+                    img.addEventListener('mouseenter', () => {
+                        img.style.transform = 'rotate(360deg)';
+                    });
+                    img.addEventListener('mouseleave', () => {
+                        img.style.transform = 'rotate(0deg)';
+                    });
+                } else {
+                    img.style.transition = 'none';
+                    img.removeEventListener('mouseenter', () => {});
+                    img.removeEventListener('mouseleave', () => {});
+                }
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk menambahkan teks overlay pada gambar
+        function addTextOverlay() {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                const overlay = document.createElement('div');
+                overlay.style.position = 'absolute';
+                overlay.style.top = '50%';
+                overlay.style.left = '50%';
+                                overlay.style.transform = 'translate(-50%, -50%)';
+                overlay.style.color = 'white';
+                overlay.style.fontSize = '20px';
+                overlay.style.fontWeight = 'bold';
+                overlay.style.textShadow = '2px 2px 5px rgba(0, 0, 0, 0.5)';
+                overlay.innerText = 'Date A Live';
+                img.parentElement.style.position = 'relative';
+                img.parentElement.appendChild(overlay);
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk menghapus teks overlay pada gambar
+        function removeTextOverlay() {
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                const overlay = img.parentElement.querySelector('div');
+                if (overlay) {
+                    img.parentElement.removeChild(overlay);
+                }
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur warna teks overlay
+        function setTextColor(color) {
+            const overlays = document.querySelectorAll('.gallery-container div');
+            overlays.forEach(overlay => {
+                overlay.style.color = color;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengatur ukuran teks overlay
+        function setTextSize(size) {
+            const overlays = document.querySelectorAll('.gallery-container div');
+            overlays.forEach(overlay => {
+                overlay.style.fontSize = size;
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk menampilkan overlay gambar PNG
+        function showOverlay() {
+            const positions = [
+                { top: '10px', left: '10px' },
+                { top: '10px', right: '10px' },
+                { bottom: '10px', left: '10px' },
+                { bottom: '10px', right: '10px' }
+            ];
+            const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+            overlay.style.display = 'block';
+            overlay.querySelector('img').src = overlayImages[currentOverlayIndex]; // Ganti gambar overlay
+            currentOverlayIndex = (currentOverlayIndex + 1) % overlayImages.length; // Pindah ke gambar berikutnya
+            Object.assign(overlay.style, randomPosition);
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 5000); // Overlay akan hilang setelah 5 detik
+            closeSidebar();
+        }
+
+        // Fungsi untuk toggle efek glow pada gambar
+        function toggleGlowEffect() {
+            isGlowEnabled = !isGlowEnabled;
+            const images = document.querySelectorAll('.gallery-container img');
+            images.forEach(img => {
+                if (isGlowEnabled) {
+                    img.style.boxShadow = '0 0 20px rgba(255, 111, 97, 0.8)';
+                } else {
+                    img.style.boxShadow = 'none';
+                }
+            });
+            closeSidebar();
+        }
+
+        // Fungsi untuk memberikan deskripsi gambar menggunakan AI (simulasi sederhana)
+        function describeImage(src) {
+            const descriptions = {
+                '0.jpeg': 'Deskripsi untuk gambar 0.',
+                '1.jpeg': 'Deskripsi untuk gambar 1.',
+                '2.jpeg': 'Deskripsi untuk gambar 2.',
+                // Tambahkan deskripsi untuk gambar lainnya
+            };
+            imageDescription.innerText = descriptions[src.split('/').pop()] || 'No description available.';
+        }
+
+        // Fungsi untuk memilih gambar secara acak
+        function pickRandomImage() {
+            const images = document.querySelectorAll('.gallery-container img');
+            const randomIndex = Math.floor(Math.random() * images.length);
+            openModal(images[randomIndex].src);
+        }
+
+        // Fungsi untuk membagikan gambar
+        function shareImage() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Date A Live Image',
+                    url: modalImg.src
+                }).then(() => {
+                    console.log('Thanks for sharing!');
+                }).catch(console.error);
+            } else {
+                alert('Sharing is not supported in this browser.');
+            }
+        }
+
+        // Fungsi untuk memberikan rating pada gambar
+        function rateImage(rating) {
+            const imageName = modalImg.src.split('/').pop();
+            alert(`You rated ${imageName} with ${rating} stars!`);
+            // Anda bisa menyimpan rating ke database atau localStorage
+        }
+
+        // Fungsi untuk menambahkan komentar pada gambar
+        function addComment() {
+            const comment = prompt('Enter your comment:');
+            if (comment) {
+                const imageName = modalImg.src.split('/').pop();
+                alert(`You commented on ${imageName}: "${comment}"`);
+                // Anda bisa menyimpan komentar ke database atau localStorage
+            }
+        }
+
+        // Fungsi untuk memulai slideshow dengan transisi
+        function startSlideshowWithTransition() {
+            let index = 0;
+            const images = document.querySelectorAll('.gallery-container img');
+            slideshowInterval = setInterval(() => {
+                modalImg.style.opacity = 0;
+                setTimeout(() => {
+                    modalImg.src = images[index].src;
+                    modalImg.style.opacity = 1;
+                }, 500); // Durasi transisi
+                index = (index + 1) % images.length;
+            }, slideshowSpeed);
+            closeSidebar();
+        }
+
+        // Fungsi untuk mengunduh gambar
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.href = modalImg.src;
+            link.download = `Date_A_Live_Image_${modalImg.src.split('/').pop()}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Fungsi untuk membuka sidebar
+        function openSidebar() {
+            sidebar.style.width = '250px';
+        }
+
+        // Fungsi untuk menutup sidebar
+        function closeSidebar() {
+            sidebar.style.width = '0';
+        }
+
+        // Fungsi untuk toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            closeSidebar();
+        }
+
+        // Fungsi untuk menampilkan animasi loading
+        function showLoading() {
+            loading.style.display = 'block';
+        }
+
+        // Fungsi untuk menyembunyikan animasi loading
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        // Fungsi untuk countdown timer
+        function updateCountdown() {
+            const eventDate = new Date('2023-12-31T00:00:00').getTime();
+            const now = new Date().getTime();
+            const distance = eventDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown').innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdown').innerHTML = 'Event has started!';
+            }
+        }
+
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Panggil fungsi untuk menghasilkan gambar
+        generateImages();
+
+        // Fungsi untuk kontrol video
+        function playPause() {
+            if (video.paused) {
+                video.play();
+                document.querySelector('.video-controls button i.fa-play').classList.replace('fa-play', 'fa-pause');
+            } else {
+                video.pause();
+                document.querySelector('.video-controls button i.fa-pause').classList.replace('fa-pause', 'fa-play');
+            }
+        }
+
+        function stopVideo() {
+            video.pause();
+            video.currentTime = 0;
+            document.querySelector('.video-controls button i.fa-pause').classList.replace('fa-pause', 'fa-play');
+        }
+
+        function muteUnmute() {
+            video.muted = !video.muted;
+            if (video.muted) {
+                document.querySelector('.video-controls button i.fa-volume-up').classList.replace('fa-volume-up', 'fa-volume-mute');
+            } else {
+                document.querySelector('.video-controls button i.fa-volume-mute').classList.replace('fa-volume-mute', 'fa-volume-up');
+            }
+        }
+
+        function fullScreen() {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.mozRequestFullScreen) { /* Firefox */
+                video.mozRequestFullScreen();
+            } else if (video.webkitRequestFullscreen) { /* Chrome, Safari, Opera */
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) { /* IE/Edge */
+                video.msRequestFullscreen();
+            }
+        }
+
+        // Fungsi untuk mengupdate progress bar
+        function updateProgress() {
+            const progress = document.querySelector('.progress-bar .progress');
+            const currentTime = document.getElementById('currentTime');
+            const duration = document.getElementById('duration');
+
+            progress.style.width = (video.currentTime / video.duration) * 100 + '%';
+            currentTime.textContent = formatTime(video.currentTime);
+            duration.textContent = formatTime(video.duration);
+        }
+
+        // Fungsi untuk format waktu
+        function formatTime(time) {
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Fungsi untuk seek video
+        function seek(event) {
+            const progressBar = document.querySelector('.progress-bar');
+            const seekTime = (event.offsetX / progressBar.offsetWidth) * video.duration;
+            video.currentTime = seekTime;
+        }
+
+        // Event listener untuk update progress bar
+        video.addEventListener('timeupdate', updateProgress);
+        video.addEventListener('loadedmetadata', () => {
+            document.getElementById('duration').textContent = formatTime(video.duration);
+        });
+    </script>
+</body>
+</html>
